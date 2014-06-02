@@ -9,7 +9,8 @@ class arffLoader:
     def __init__(self):
         self.classIndex = 1     #index of class
         self.attrName = []      #index map to AttrName
-        self.transactionList = []   #transaction list
+        self.transactionList = []  #transactionList
+        self.transactionContentList = []   #transaction list
         self.numInstance = 0
     def load(self,content):
         splitByAttr = content.split('@attribute')
@@ -26,19 +27,20 @@ class arffLoader:
         
         #
         #    Save the value in transaction to transaction list
-        #    Save transaction list into transactions list
+        #    Save transaction list into transactionList list
         #
         transContent = content.split('@data')[1].strip()
         transaction = transContent.split('\n')
-#        transactionList = self.transactionList
+#        transactionContentList = self.transactionContentList
 #        numInstance = self.numInstance
         self.numInstance = len(transaction)
         for tran in transaction:
+            self.transactionList.append(tran)
             tranList = []
             tranContents = tran.split(',')  #save every value of attribute into list
             for tranC in tranContents:
                 tranList.append(tranC)
-            self.transactionList.append(tranList)
+            self.transactionContentList.append(tranList)
     def fortranArray(self,twoDList):
         tmpArray = []
         for trans in twoDList:

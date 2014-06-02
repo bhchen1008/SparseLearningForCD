@@ -17,9 +17,9 @@ dictLoader1.load(dict1)
 
 print dictLoader1.classIndex
 print dictLoader1.attrName
-print dictLoader1.transactionList[0]
+print dictLoader1.transactionContentList[0]
 print dictLoader1.numInstance
-D1 = dictLoader1.fortranArray(dictLoader1.transactionList)
+D1 = dictLoader1.fortranArray(dictLoader1.transactionContentList)
 print 'D1:'
 print D1
 print D1.shape[0]
