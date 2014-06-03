@@ -95,8 +95,8 @@ for j in range(X.shape[1]):
     for i in range(numOfDicts):
         #save mapping result
         tmps.append(str(alpha_lasso_m1_Ds[i].getcol(j)))
-        if j<=20:
-            print str(j)+'-D'+str(i)+':'+tmps[i]+'\n'
+#        if j<=20:
+#            print str(j)+'-D'+str(i)+':'+tmps[i]+'\n'
         outputCompare.write(str(j)+'-D'+str(i)+':'+tmps[i]+'\n\n')
         #split
 #        print tmps[i].split('\n')
@@ -119,10 +119,8 @@ for j in range(X.shape[1]):
 max_weight_Ds = []
 weight2Dict = {}
 
-
+RightInstance = 0   #For caculating accuracy
 for instNo in allInfos[0]:
-    if(instNo==4):
-        print 'here'
     weights = []
     
     for i in range(numOfDicts):
@@ -130,11 +128,7 @@ for instNo in allInfos[0]:
         #examine the correctness of weight
         weightTmp = []
         weight2PageDs[i].clear()
-#        print allInfos[i][instNo]
 
-#        for weight in allInfos[i][instNo].values():
-#            if weight < alpha1Lambda + 0.5:
-#                weightTmp.append(weight)
         for page in allInfos[i][instNo].keys():
             weight = allInfos[i][instNo][page]
             if weight < alpha1Lambda + 0.5:
@@ -143,21 +137,34 @@ for instNo in allInfos[0]:
                 weight2PageDs[i][weight] = page        
                 
         max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
-        if max_weight_Ds[i] in weight2Dict:
-            print instNo
-            print max_weight_Ds[i]
-            print 'error\n'
+        #check for same weight
+#        if max_weight_Ds[i] in weight2Dict:
+#            print instNo
+#            print max_weight_Ds[i]
+#            print 'error\n'
         weight2Dict[max_weight_Ds[i]] = i
         weights.append(max_weight_Ds[i])
-        
+
+    #choose Dictionary
     dictChoose = weight2Dict[max(weights)]
+    
+    
     output_f.write(str(dictChoose)+'\n')
-    outputPredictReference.write(dictLoaders[dictChoose].transactionList[weight2PageDs[dictChoose][max(weights)]]+'\n')
+    pageInDict = weight2PageDs[dictChoose][max(weights)]
+    outputPredictReference.write(dictLoaders[dictChoose].transactionList[pageInDict]+'\n')
+    
+    if dictLoaders[dictChoose].className[pageInDict] == testLoader.className[instNo]:
+        RightInstance += 1
+    else:
+        print 'WrongInstance:' + str(instNo) + 'using Dict' + str(dictChoose) + 'in page_' + str(pageInDict)
     
     for value in range(len(max_weight_Ds)):
         max_weight_Ds.pop()
     
     weight2Dict.clear()
+
+print 'RightInstance:' + str(RightInstance)
+print 'Accuracy:'+str(float(RightInstance)/len(allInfos[0]))
 #        weight2Dict[float(str(max_weight_Ds[i])+i)]
 
 
