@@ -13,85 +13,40 @@ import spams
 import time
 import numpy as np
 import math
-from collections import deque
-from collections import Counter
 
-def decideFinalDict(dictWindow,threshold):
-    most_common,num_most_common = Counter(dictWindow).most_common(1)[0]
-    if(len(set(dictWindow))>1):
-        num_second_common = Counter(dictWindow).most_common(2)[1][1]
-        if(num_most_common==num_second_common):
-            return 'currentDict'
-        else:
-            if(num_most_common >= len(dictWindow)*threshold):
-                return most_common
-            else:
-                return 'currentDict'
-    else:
-        if(num_most_common >= len(dictWindow)*threshold):
-            return most_common
-        else:
-            return 'currentDict'
 
-def weightedDict(num,dictWindow):
-    return float(num)/len(dictWindow)
 
-def decideFinalDictWeighted(dictWindow):
-    windowSize = len(dictWindow)
-    dictsDict = {}
-    for dictNo in range(len(dictWindow)):
-        dict = dictWindow[dictNo]
-        if(dict in dictsDict):
-            dictsDict[dict] += float(dictNo)/windowSize
-        else:
-            dictsDict[dict] = float(dictNo)/windowSize
-    keySortedByValue = sorted(dictsDict, key=lambda k: dictsDict[k], reverse=True)
-    if(len(set(dictWindow))>1):
-        if(dictsDict[keySortedByValue[0]]==dictsDict[keySortedByValue[1]]):
-            return 'currentDict'
-        else:
-            return keySortedByValue[0]
-    else:
-        return 'currentDict'
-    
-        
-            
-
-Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-8) / 2
+numOfDicts = (len(sys.argv)-7) / 2
 
 #Load dictionaries
 input_files = []
 dicts = []
 dictLoaders = []
 Ds = []
-for dictNo in range(numOfDicts):
+#Load dataset
+for i in range(numOfDicts):
 #    input_files.append(open(sys.argv[i+2]))
-    input_file = open(sys.argv[dictNo+2])
+    input_file = open(sys.argv[i+2])
 #    dicts.append(input_files[i].read())
 #    dicts.append(input_file.read())
     dict = input_file.read()
     dictLoaders.append(aL.arffLoader())
 #    dictLoaders[i].load(dicts[i])
-    dictLoaders[dictNo].load(dict)
+    dictLoaders[i].load(dict)
     
-    Ds.append(dictLoaders[dictNo].fortranArray(dictLoaders[dictNo].transactionContentList))
-    print 'D'+str(dictNo+1)+':'
-    print Ds[dictNo]
-    Ds[dictNo] = np.asfortranarray(Ds[dictNo] / np.tile(np.sqrt((Ds[dictNo]*Ds[dictNo]).sum(axis=0)),(Ds[dictNo].shape[0],1)))
+    Ds.append(dictLoaders[i].fortranArray(dictLoaders[i].transactionContentList))
+    print 'D'+str(i+1)+':'
+    print Ds[i]
+    Ds[i] = np.asfortranarray(Ds[i] / np.tile(np.sqrt((Ds[i]*Ds[i]).sum(axis=0)),(Ds[i].shape[0],1)))
 #    print np.tile(np.sqrt((Ds[i]*Ds[i]).sum(axis=0)
-    print 'normalize of D' + str(dictNo+1) + ':'
-    print Ds[dictNo]
-
-algoResults = []
+    print 'normalize of D' + str(i+1) + ':'
+    print Ds[i]
 #Load result of other algo
 for i in range(numOfDicts):
-    input_file = open(sys.argv[i+numOfDicts+2])
-    result = input_file.read()
-    algoResults.append(aL.arffLoader())
-    algoResults[i].load(result)
+    input_files.append(open(sys.argv[i+numOfDicts+2]))
+    
 
 #test signal
 input_X = open(sys.argv[1])
@@ -107,8 +62,7 @@ X = np.asfortranarray(X / np.tile(np.sqrt((X*X).sum(axis=0)),(X.shape[0],1)))
 print 'normalize of X:'
 print X
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-6])
-threshold = float(sys.argv[len(sys.argv)-5])
+algoWindow = int(sys.argv[len(sys.argv)-5])
 
 #DictionaryChoose
 output_f = open(sys.argv[len(sys.argv)-4],'w')
@@ -127,17 +81,14 @@ alpha1Lambda = 1
 compareLambda = 0
 alpha_lasso_m1_Ds = []
 
-#a = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
+a = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
 for i in range(numOfDicts):
     tic = time.time()
     alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0))
-#    alpha_lasso_D = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
-#    alpha_lasso_D = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1)
-    
 #    alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1))
     tac = time.time()
     t = tac - tic
-    print 'alpha_lasoo_m1_D'+str(i)+':'
+    print 'alpha_lasoo_m1:'
     print 'time:'+str(t)
 
 #print alpha_lasso_m1_D1.getcol(0)
@@ -196,79 +147,59 @@ weight2Dict = {}
 dictChooseUBE = {}  #用來記錄那些只有對應到一頁的Dict以及其對應的Page
 weights = []        #比較該使用哪個Dict用
 weightTmp = []      #用來過濾錯誤的weight
-RightInstance = 0   #For caculating accuracy with Sparse Learning
-RightInstanceOtherAlgo = 0  #For caculating accuracy with other algorithm with sparse learning
-WrongInstanceOtherAlgo = 0 
+RightInstance = 0   #For caculating accuracy
 dictPage = 0        #兩本都只對照到一頁時使用
-algoWindow = deque()
-dictChoose = 0
-finalDictChoose = 0
-currentDict = 0
-#window
 for instNo in allInfos[0]:
-#    if(instNo <= numAlgoWindow):
-        
+    if instNo == 19:
+        print 'instNo:' + str(instNo)
     
-    for dictNo in range(numOfDicts):
-#        print allInfos[dictNo][instNo].values()
+    for i in range(numOfDicts):
+#        print allInfos[i][instNo].values()
         #examine the correctness of weight
         
-        weight2PageDs[dictNo].clear()
+        weight2PageDs[i].clear()
         
-        #no one page bug
-        '''
-        if len(dictChooseUBE) >= 1:
-            continue             
-        for page in allInfos[dictNo][instNo].keys():
-            weight = allInfos[dictNo][instNo][page]
-            if weight < alpha1Lambda + 0.5:
-                weightTmp.append(weight)
-                weight2PageDs[dictNo][weight] = page        
-                    
-        max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
-        #取完weightTmp後，清空
-        weightTmp[:] = []
-        #check for same weight
-#        if max_weight_Ds[dictNo] in weight2Dict:
-#            print instNo
-#            print max_weight_Ds[dictNo]
-#            print 'error\n'
-        weight2Dict[max_weight_Ds[dictNo]] = dictNo
-        weights.append(max_weight_Ds[dictNo])
-        '''
         #if there is only one page in Dict, the value is almost same
-        if len(allInfos[dictNo][instNo].keys())==1:
+        if len(allInfos[i][instNo].keys())==1:
             # 如果已經有一本字典只有對照到一頁，今天進來另外一本的話，則去比對原資料看哪個相差較
-            dictChooseUBE[dictNo] = allInfos[dictNo][instNo].keys()[0]
+            dictChooseUBE[i] = allInfos[i][instNo].keys()[0]
             #避免第一本字典對到多頁，其他本字典對到一頁時，weight2Dict與weights裡頭會有資料，所以這邊將兩個list清空
             weight2Dict.clear()
             weights[:] = []
+#            for page in allInfos[i][instNo].keys():
+#                weight = allInfos[i][instNo][page]
+#                if weight < alpha1Lambda + 0.5:
+#                    weightTmp.append(weight)
+#                    weight2PageDs[i][weight] = page        
+#                    
+#            max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
+#            weight2Dict[max_weight_Ds[i]] = i
+#            weights.append(max_weight_Ds[i])
         else:
             if len(dictChooseUBE) >= 1:
                 continue             
-            for page in allInfos[dictNo][instNo].keys():
-                weight = allInfos[dictNo][instNo][page]
+            for page in allInfos[i][instNo].keys():
+                weight = allInfos[i][instNo][page]
                 if weight < alpha1Lambda + 0.5:
                     weightTmp.append(weight)
-                    weight2PageDs[dictNo][weight] = page        
+                    weight2PageDs[i][weight] = page        
                     
             max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
             #取完weightTmp後，清空
             weightTmp[:] = []
             #check for same weight
-    #        if max_weight_Ds[dictNo] in weight2Dict:
+    #        if max_weight_Ds[i] in weight2Dict:
     #            print instNo
-    #            print max_weight_Ds[dictNo]
+    #            print max_weight_Ds[i]
     #            print 'error\n'
-            weight2Dict[max_weight_Ds[dictNo]] = dictNo
-            weights.append(max_weight_Ds[dictNo])
+            weight2Dict[max_weight_Ds[i]] = i
+            weights.append(max_weight_Ds[i])
 
     #choose Dictionary
     #the page is almost 1 to 1, if there is only one page.
     if len(dictChooseUBE) > 1:  #如果有兩本字典都只對應到一頁，那麼與test data比較看誰差距較小
         for dictNum in range(len(dictChooseUBE)):
             for i in range(testLoader.numAttribute):
-                #正確答案
                 testValue = float(testLoader.transactionContentList[instNo][i])
                 dictPage = dictChooseUBE[dictChooseUBE.keys()[dictNum]]
                 dictValue = float(dictLoaders[dictChooseUBE.keys()[dictNum]].transactionContentList[dictPage][i])
@@ -292,40 +223,15 @@ for instNo in allInfos[0]:
         pageInDict = weight2PageDs[dictChoose][max(weights)]
     
     
-    #choose FinalDict
-    if(len(algoWindow)==numAlgoWindow):
-        algoWindow.popleft()
-    algoWindow.append(dictChoose)
-    finalDict = decideFinalDict(algoWindow,threshold)
-#    finalDict = decideFinalDictWeighted(algoWindow)
-    if(finalDict!='currentDict'):
-        finalDictChoose = finalDict
-#    else:
-#        test=1#print 'same'            
+    output_f.write(str(dictChoose)+'\n')
     
-    output_f.write(str(dictChoose)+'FinalDictChoose:'+str(finalDictChoose)+'\n')
-    
-    
-    
-    #use Sparse Learning
     outputPredictSparse.write(dictLoaders[dictChoose].transactionList[pageInDict]+'\n')
-    #use result of other algo
-    outputPredictOtherAlgo.write(algoResults[finalDictChoose].transactionList[instNo]+'\n')
+#    outputPredictOtherAlgo
     
-    if int(dictLoaders[dictChoose].className[pageInDict]) == int(testLoader.className[instNo]):
+    if dictLoaders[dictChoose].className[pageInDict] == testLoader.className[instNo]:
         RightInstance += 1
     else:
-        print 'WrongInstance:' + str(instNo) + ' using Dict' + str(dictChoose) + ' in page_' + str(pageInDict)
-#        print 'SPW_RightInstance:'+str(type(testLoader.className[instNo]))+'\nPredictInstance:' + str(type(dictLoaders[dictChoose].className[pageInDict]))
-#        print 'wrong:\nRightInstance:' + testLoader.className[instNo] + '\nPredictInstance:' + dictLoaders[dictChoose].className[pageInDict]
-#        WrongInstanceOtherAlgo += 1
-    
-    if int(algoResults[finalDictChoose].className[instNo]) == int(testLoader.className[instNo]):
-        RightInstanceOtherAlgo += 1
-#    else:
-#        print 'RightInstance:'+str(type(int(testLoader.className[instNo])))+'\nPredictInstance:' + str(type(int(algoResults[finalDictChoose].className[instNo])))
-#        print 'wrong:\nRightInstance:' + testLoader.className[instNo] + '\nPredictInstance:' + algoResults[finalDictChoose].className[instNo]
-#        WrongInstanceOtherAlgo += 1
+        print 'WrongInstance:' + str(instNo) + 'using Dict' + str(dictChoose) + 'in page_' + str(pageInDict)
     
     #clear list
     max_weight_Ds[:] = []
@@ -339,15 +245,8 @@ for instNo in allInfos[0]:
     weight2Dict.clear()
     dictChooseUBE.clear()
 
-print 'RightInstance use Sparse Learning:' + str(RightInstance)
+print 'RightInstance:' + str(RightInstance)
 print 'Accuracy:'+str(float(RightInstance)/len(allInfos[0]))
-print '\n'
-print 'RightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
-print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/len(allInfos[0]))
-#print 'WrongInstanceOtherAlgo:' + str(WrongInstanceOtherAlgo)
-
-Alltac = time.time()
-print 'AllTime:' + str(Alltac - Alltic)
 #        weight2Dict[float(str(max_weight_Ds[i])+i)]
 
 

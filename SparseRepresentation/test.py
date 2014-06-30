@@ -13,7 +13,7 @@ np.random.seed(0)
 #        D1[i][j]=num
 #        num+=1
 #    
-#print 'D1:'
+#print 'D1:'version
 #print D1
 #ta = np.array([1,2,3,4,5,6].res, order='F')
 #D1=np.array([1.0,4.0,7.0,2.0,5.0,8.0,3.0,6.0,9.0])
@@ -48,8 +48,8 @@ print X
 #    X[i][1]=i*3+2
 
 tic = time.time()
-alpha = spams.lasso(X,D1,return_reg_path = False,lambda1 = 1,pos=True,mode=0)
-#alpha = spams.lasso(X,D1,return_reg_path = False,lambda1 = 0,pos=True,mode=1,verbose=True)
+#alpha = spams.lasso(X,D1,return_reg_path = False,lambda1 = 2,pos=True,mode=0)
+alpha = spams.lasso(X,D1,return_reg_path = False,lambda1 = 0.1,pos=True,mode=1,verbose=True)
 #alpha = spams.omp(X,D1,L=2,lambda1 = None,return_reg_path = False,numThreads = -1)
 #alpha = spams.omp(X,D1,L=None,eps= 0,lambda1 = None,return_reg_path = False,numThreads = -1)
 tac = time.time()
