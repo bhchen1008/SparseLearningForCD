@@ -7,7 +7,7 @@ Created on 2014/3/18
 import numpy as np
 class arffLoader:
     def __init__(self):
-        self.classIndex = 1     #index of class
+        self.classIndex = 0     #index of class
         self.attrName = []      #index map to AttrName
         self.transactionList = []  #transactionList
         self.transactionContentList = []   #transaction list
@@ -60,6 +60,14 @@ class arffLoader:
                 tmpArray.append(float(trans[j]))
         array = np.array(tmpArray)
         fortranArray = array.reshape(self.classIndex, self.numInstance, order='F')
+        return fortranArray
+    def fortranArrayPara(self,twoDList,numAttribute,numInstance):
+        tmpArray = []
+        for trans in twoDList:
+            for j in range(len(trans)-1):
+                tmpArray.append(float(trans[j]))
+        array = np.array(tmpArray)
+        fortranArray = array.reshape(numAttribute, numInstance, order='F')
         return fortranArray
     def singleFortranArray(self,oneDList):
         tmpArray = []

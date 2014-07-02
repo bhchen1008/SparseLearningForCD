@@ -113,10 +113,13 @@ dictChoose = 0
 finalDictChoose = 0
 currentDict = 0
 
-numOfInsts = len(testLoader.transactionContentList)
+#numOfInsts = len(testLoader.transactionContentList)
+numOfInsts = testLoader.numInstance
+numOfAttrs = testLoader.numAttribute
 for instNo in range(numOfInsts):
 #    print 'instNo:'+str(instNo)
-    X = testLoader.singleFortranArray(testLoader.transactionContentList[instNo])
+    currentTestData = testLoader.transactionContentList[instNo]
+    X = testLoader.singleFortranArray(currentTestData)
 #    print 'X:'
 #    print X
     #normalize X/各值平方相加開根號
@@ -130,7 +133,7 @@ for instNo in range(numOfInsts):
     splitByEnterDs[:] = []
     #Caculate
     for dictNo in range(numOfDicts):
-        tic = time.time()
+#        tic = time.time()
 #        alpha_lasso_m1_Ds = spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
 #        alpha_lasso_m1_Ds = spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1)
         alpha_lasso_m1_Ds = spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = 1,pos=True,mode=0)
@@ -143,8 +146,8 @@ for instNo in range(numOfInsts):
 #        alpha_omp_m3_Ds = spams.omp(X,Ds[dictNo],lambda1=0.4,return_reg_path = False,numThreads = -1)
 #        alpha_lasso_m1_Ds.max()
     #    alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1))
-        tac = time.time()
-        t = tac - tic
+#        tac = time.time()
+#        t = tac - tic
 #        print 'alpha_lasoo_m1:'
 #        print 'time:'+str(t)
         

@@ -114,7 +114,8 @@ dictChoose = 0
 finalDictChoose = 0
 currentDict = 0
 
-numOfInsts = len(testLoader.transactionContentList)
+numOfInsts = testLoader.numInstance
+numOfAttrs = testLoader.numAttribute
 for instNo in range(numOfInsts):
 #    print 'instNo:'+str(instNo)
     X = testLoader.singleFortranArray(testLoader.transactionContentList[instNo])

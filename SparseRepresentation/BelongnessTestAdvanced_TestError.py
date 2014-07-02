@@ -60,7 +60,7 @@ def decideFinalDictWeighted(dictWindow):
 Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-8) / 2
+numOfDicts = (len(sys.argv)-9) / 2
 
 #Load dictionaries
 input_files = []
@@ -107,17 +107,21 @@ X = np.asfortranarray(X / np.tile(np.sqrt((X*X).sum(axis=0)),(X.shape[0],1)))
 print 'normalize of X:'
 print X
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-6])
-threshold = float(sys.argv[len(sys.argv)-5])
+numAlgoWindow = int(sys.argv[len(sys.argv)-7])
+threshold = float(sys.argv[len(sys.argv)-6])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-4],'w')
+output_f = open(sys.argv[len(sys.argv)-5],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-2],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-1],'w')
+outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+
+#path = "D:\NetDB\LAB\research\ICDM-2014\tmp_result\TestError\test.txt"
+output_Compare = open(sys.argv[len(sys.argv)-1],'w')
+
 
 
 
@@ -191,8 +195,57 @@ for j in range(X.shape[1]):
             else:
                 allInfos[i][instanceNo] = {}
                 allInfos[i][instanceNo][pageNo] = weight
-        
+
+
+tmpData = []
+dictError = {}
+RightInstanceOtherAlgo = 0        
+for i in range(X.shape[1]):
+    if i==638:
+        print 'T'
+    instanceNo = i
+    errorSum = 0
+    for dictNo in range(numOfDicts):
+#        if (dictNo == 1):
+#            print 't'        
+        for j in range(X.shape[0]):
+            negative = False
+            if(X[j][i]<0):
+                negative = True
+            tmpData.append(X[j][i])
+            tmpWeight = []
+            for page in allInfos[dictNo][instanceNo]:
+                pageWeight = allInfos[dictNo][instanceNo][page]
+                if(pageWeight < alpha1Lambda+0.02):
+                    if(pageWeight > alpha1Lambda):
+                        pageWeight = 1
+                    elif(pageWeight==0 and len(allInfos[dictNo][instanceNo])==1):
+                        pageWeight = 1
+                    tmpWeight.append(pageWeight)
+                    tmpData[j] -= Ds[dictNo][j][page]*pageWeight
+                    if(tmpData[j]<0 and not(negative)):
+                        tmpData[j] += Ds[dictNo][j][page]*pageWeight
+                    if(tmpData[j]>0 and negative):
+                        tmpData[j] += Ds[dictNo][j][page]*pageWeight
+        dictError[dictNo] = sum(tmpData)*(1-max(tmpWeight))
+#        dictError[dictNo] = sum(tmpData)*(1-math.pow(max(tmpWeight), 2))
+        tmpData[:]=[]
     
+    
+    dictChoose = min(dictError, key=dictError.get)
+    if int(algoResults[dictChoose].className[i]) == int(testLoader.className[i]):
+        RightInstanceOtherAlgo += 1
+    
+    
+#    print dictError        
+    print 'instNo:' + str(i) + ', lower error:' + str(dictChoose)
+#    output_Compare.write(str(dictError)+'\n')
+    output_Compare.write('instNo:' + str(i) + ', lower error:' + str(dictChoose)+'\n')
+    
+print '\nRightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
+print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/len(allInfos[0])) 
+
+'''    
 #customize
 max_weight_Ds = []
 weight2Dict = {}
@@ -219,26 +272,25 @@ for instNo in allInfos[0]:
         weight2PageDs[dictNo].clear()
         
         #no one page bug
-        '''
-        if len(dictChooseUBE) >= 1:
-            continue             
-        for page in allInfos[dictNo][instNo].keys():
-            weight = allInfos[dictNo][instNo][page]
-            if weight < alpha1Lambda + 0.5:
-                weightTmp.append(weight)
-                weight2PageDs[dictNo][weight] = page        
-                    
-        max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
-        #取完weightTmp後，清空
-        weightTmp[:] = []
-        #check for same weight
-#        if max_weight_Ds[dictNo] in weight2Dict:
-#            print instNo
-#            print max_weight_Ds[dictNo]
-#            print 'error\n'
-        weight2Dict[max_weight_Ds[dictNo]] = dictNo
-        weights.append(max_weight_Ds[dictNo])
-        '''
+#        if len(dictChooseUBE) >= 1:
+#            continue             
+#        for page in allInfos[dictNo][instNo].keys():
+#            weight = allInfos[dictNo][instNo][page]
+#            if weight < alpha1Lambda + 0.5:
+#                weightTmp.append(weight)
+#                weight2PageDs[dictNo][weight] = page        
+#                    
+#        max_weight_Ds.append(sorted(weightTmp,reverse=True)[0])
+#        #取完weightTmp後，清空
+#        weightTmp[:] = []
+#        #check for same weight
+##        if max_weight_Ds[dictNo] in weight2Dict:
+##            print instNo
+##            print max_weight_Ds[dictNo]
+##            print 'error\n'
+#        weight2Dict[max_weight_Ds[dictNo]] = dictNo
+#        weights.append(max_weight_Ds[dictNo])
+
         #if there is only one page in Dict, the value is almost same
         if len(allInfos[dictNo][instNo].keys())==1:
             # 如果已經有一本字典只有對照到一頁，今天進來另外一本的話，則去比對原資料看哪個相差較
@@ -320,10 +372,10 @@ for instNo in allInfos[0]:
     if int(dictLoaders[dictChoose].className[pageInDict]) == int(testLoader.className[instNo]):
         RightInstance += 1
     else:
-        print 'WrongInstance:' + str(instNo) + ' using Dict' + str(dictChoose) + ' in page_' + str(pageInDict)
+#        print 'WrongInstance:' + str(instNo) + ' using Dict' + str(dictChoose) + ' in page_' + str(pageInDict)
 #        print 'SPW_RightInstance:'+str(type(testLoader.className[instNo]))+'\nPredictInstance:' + str(type(dictLoaders[dictChoose].className[pageInDict]))
 #        print 'wrong:\nRightInstance:' + testLoader.className[instNo] + '\nPredictInstance:' + dictLoaders[dictChoose].className[pageInDict]
-#        WrongInstanceOtherAlgo += 1
+        WrongInstanceOtherAlgo += 1
     
     if int(algoResults[finalDictChoose].className[instNo]) == int(testLoader.className[instNo]):
         RightInstanceOtherAlgo += 1
@@ -363,3 +415,4 @@ print 'AllTime:' + str(Alltac - Alltic)
 #        output_f.write('5\n')
 #    else:
 #        output_f.write('6\n')    
+'''
