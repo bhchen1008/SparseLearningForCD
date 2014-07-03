@@ -39,9 +39,11 @@ for dictNo in range(numDicts):
     tmpValue = []
 
 for i in range(X.shape[1]):
+    print 'InstNo:'+str(i)
     tmpValue = []
     for j in range(X.shape[0]):
         tmpValue.append(X[j][i])
+    
     for dictNo in range(numDicts):
         Error = []
         for j in range(X.shape[0]):
@@ -62,8 +64,8 @@ for i in range(X.shape[1]):
                 pageValue = Ds[dictNo][j][pageNo]
                 Error[j] -= (pageValue * weight)
                 
-            error = sum(tmpValue)
-            print 'D'+dictNo+',error:' + error
+        error = sum(Error)
+        print 'D'+str(dictNo)+',error:' + str(error)
             
         
         

@@ -36,7 +36,10 @@ def decideFinalDict(dictWindow,threshold):
 def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
     outputCompare.write('Re-Choose Dictionary!\n')
     weightWindowDsRe = []
-    tmpsRe = []
+#    tmpsRe = []
+    tmpsRe = 0
+#    splitByEnterDsRe = []
+    splitByEnterDsRe = 0
     numDicts = len(dicts)
     for i in range(numDicts):
         weightWindowDsRe.append(deque())
@@ -45,20 +48,25 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
     testD = testWindow.fortranArrayPara(testDWindow,numAttrs,numInsts)
     testD = np.asfortranarray(testD / np.tile(np.sqrt((testD*testD).sum(axis=0)),(testD.shape[0],1)))
     for dictNo in range(numDicts):
+#        tmpsRe[:] = []
+#        splitByEnterDsRe[:] = []
         if(dictNo==currDict):
             continue
         alpha_lasso_m1_Ds_batch = spams.lasso(testD,dicts[dictNo],return_reg_path = False,lambda1 = 1,pos=True,mode=0)
         
         for j in range(alpha_lasso_m1_Ds_batch.shape[1]):
-            tmpsRe.append(str(alpha_lasso_m1_Ds_batch.getcol(j)))
+#            tmpsRe.append(str(alpha_lasso_m1_Ds_batch.getcol(j)))
+            tmpsRe = str(alpha_lasso_m1_Ds_batch.getcol(j))
             #instNo+j才是正確的instance Number
-            outputCompare.write(str(instNo+j)+'-D'+str(dictNo)+':'+tmpsRe[j]+'\n\n')
+            outputCompare.write(str(instNo-len(testDWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe+'\n\n')
             #split
             #print tmpsRe[i].split('\n')
-            splitByEnterDs.append(tmpsRe[j].split('\n'))
+#            splitByEnterDsRe.append(tmpsRe[j].split('\n'))
+            splitByEnterDsRe = tmpsRe.split('\n')
             #        splitByEnterD1 = tmp1.split('\n')
             weightTmp = []
-            for line in splitByEnterDs[j]:
+#            for line in splitByEnterDsRe[j]:
+            for line in splitByEnterDsRe:
                 line = line.strip()
                 #mapping page
                 pageNo = int(line.split(',')[0].split('(')[1].strip())
@@ -242,7 +250,7 @@ for instNo in range(numOfInsts):
             
             for page in dictInfos[dictNo].keys():
                 weight = dictInfos[dictNo][page]
-                if weight <= alpha1Lambda + 0.02:
+                if weight <= alpha1Lambda + 0.05:
                     weightTmp.append(weight)
                     weight2PageDs[dictNo][weight] = page
 #                if weight >= 1:
@@ -261,6 +269,7 @@ for instNo in range(numOfInsts):
             if(len(weightWindowDs)==numAlgoWindow):
                 weightWindowDs.popleft()            
             weightWindowDs[dictNo].append(maxWeight)
+#        print 'instNo:'+str(instNo)
         #當sliding window的資料已滿，即可開始選擇初始字典            
         if(instNo==(numAlgoWindow-1)):
             for dictNo in range(numOfDicts):
@@ -295,7 +304,7 @@ for instNo in range(numOfInsts):
             
         for page in dictInfos[currentDict].keys():
             weight = dictInfos[currentDict][page]
-            if weight < alpha1Lambda + 0.02:
+            if weight < alpha1Lambda + 0.05:
                 weightTmp.append(weight)
                 weight2PageDs[currentDict][weight] = page
 #            if weight >= 1:
