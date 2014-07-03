@@ -268,6 +268,10 @@ for instNo in range(numOfInsts):
             currentDict,meanCompare = max(dictErrorMean.iteritems(), key=lambda x:x[1])
             stdCompare = np.std(weightWindowDs[currentDict])
 #            currentDict = max(dictErrorMean.iteritems(), key=operator.itemgetter(1))[0]
+            outputPredictSparse.write('Initial:\n'+'currentDict:'+str(currentDict)+'\n'+'meanCompare:'+str(meanCompare)+'\n'+'StdCompare:'+str(stdCompare)+'\n\n')
+            for i in range(numAlgoWindow):
+                output_f.write(str(currentDict)+'\n')
+                outputPredictOtherAlgo.write(algoResults[currentDict].transactionList[i]+'\n')
 
             
     #initial done
@@ -302,7 +306,7 @@ for instNo in range(numOfInsts):
         #取完weightTmp後，清空
         weightTmp[:] = []
             
-        #one page bug if weight = 0.0 transform to 1
+        #one pji3veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeewwwwwwwwwwwwwwwwwwwwwww````````````sssssssddddddddddddddddddddddddddddfage bug if weight = 0.0 transform to 1
         if maxWeight==0:
             maxWeight = 1
         elif maxWeight > 1:
@@ -312,6 +316,7 @@ for instNo in range(numOfInsts):
         weightWindowDs[currentDict].append(maxWeight)
         
         currentMean = np.mean(weightWindowDs[currentDict])
+        outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
         if((meanCompare-currentMean) > stdCompare):
@@ -320,7 +325,7 @@ for instNo in range(numOfInsts):
 #        else:
 #            print 'currentMean'+str(currentMean)
             
-        output_f.write(str(currentDict))
+        output_f.write(str(currentDict)+'\n')
         #use Sparse Learning
 #        outputPredictSparse.write(dictLoaders[dictChoose].transactionList[pageInDict]+'\n')
 #        outputPredictSparse.write('This algo no this value\n')

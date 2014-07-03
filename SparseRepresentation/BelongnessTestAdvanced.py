@@ -78,12 +78,12 @@ for dictNo in range(numOfDicts):
     dictLoaders[dictNo].load(dict)
     
     Ds.append(dictLoaders[dictNo].fortranArray(dictLoaders[dictNo].transactionContentList))
-    print 'D'+str(dictNo+1)+':'
-    print Ds[dictNo]
+#    print 'D'+str(dictNo+1)+':'
+#    print Ds[dictNo]
     Ds[dictNo] = np.asfortranarray(Ds[dictNo] / np.tile(np.sqrt((Ds[dictNo]*Ds[dictNo]).sum(axis=0)),(Ds[dictNo].shape[0],1)))
 #    print np.tile(np.sqrt((Ds[i]*Ds[i]).sum(axis=0)
-    print 'normalize of D' + str(dictNo+1) + ':'
-    print Ds[dictNo]
+#    print 'normalize of D' + str(dictNo+1) + ':'
+#    print Ds[dictNo]
 
 algoResults = []
 #Load result of other algo
@@ -99,13 +99,13 @@ testSignal = input_X.read()
 testLoader = aL.arffLoader()
 testLoader.load(testSignal)
 X = testLoader.fortranArray(testLoader.transactionContentList)
-print 'X:'
-print X
+#print 'X:'
+#print X
 #normalize X/各值平方相加開根號
 #X[0][0]為第一筆的第一個欄位值, X[1][0]為第一筆的第二個欄位值, X[A1][A2]為第(A2+1)筆的第(A1+1)個欄位值
 X = np.asfortranarray(X / np.tile(np.sqrt((X*X).sum(axis=0)),(X.shape[0],1)))
-print 'normalize of X:'
-print X
+#print 'normalize of X:'
+#print X
 
 numAlgoWindow = int(sys.argv[len(sys.argv)-6])
 threshold = float(sys.argv[len(sys.argv)-5])
@@ -137,8 +137,8 @@ for i in range(numOfDicts):
 #    alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1))
     tac = time.time()
     t = tac - tic
-    print 'alpha_lasoo_m1_D'+str(i)+':'
-    print 'time:'+str(t)
+#    print 'alpha_lasoo_m1_D'+str(i)+':'
+#    print 'time:'+str(t)
 
 #print alpha_lasso_m1_D1.getcol(0)
 #print alpha_lasso_m1_Ds[0].getcol(0)
@@ -319,8 +319,8 @@ for instNo in allInfos[0]:
     
     if int(dictLoaders[dictChoose].className[pageInDict]) == int(testLoader.className[instNo]):
         RightInstance += 1
-    else:
-        print 'WrongInstance:' + str(instNo) + ' using Dict' + str(dictChoose) + ' in page_' + str(pageInDict)
+#    else:
+#        print 'WrongInstance:' + str(instNo) + ' using Dict' + str(dictChoose) + ' in page_' + str(pageInDict)
 #        print 'SPW_RightInstance:'+str(type(testLoader.className[instNo]))+'\nPredictInstance:' + str(type(dictLoaders[dictChoose].className[pageInDict]))
 #        print 'wrong:\nRightInstance:' + testLoader.className[instNo] + '\nPredictInstance:' + dictLoaders[dictChoose].className[pageInDict]
 #        WrongInstanceOtherAlgo += 1

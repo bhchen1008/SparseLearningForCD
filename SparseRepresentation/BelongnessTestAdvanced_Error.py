@@ -60,7 +60,7 @@ def decideFinalDictWeighted(dictWindow):
 Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-9) / 2
+numOfDicts = (len(sys.argv)-8) / 2
 
 #Load dictionaries
 input_files = []
@@ -78,12 +78,12 @@ for dictNo in range(numOfDicts):
     dictLoaders[dictNo].load(dict)
     
     Ds.append(dictLoaders[dictNo].fortranArray(dictLoaders[dictNo].transactionContentList))
-    print 'D'+str(dictNo+1)+':'
-    print Ds[dictNo]
+#    print 'D'+str(dictNo+1)+':'
+#    print Ds[dictNo]
     Ds[dictNo] = np.asfortranarray(Ds[dictNo] / np.tile(np.sqrt((Ds[dictNo]*Ds[dictNo]).sum(axis=0)),(Ds[dictNo].shape[0],1)))
 #    print np.tile(np.sqrt((Ds[i]*Ds[i]).sum(axis=0)
-    print 'normalize of D' + str(dictNo+1) + ':'
-    print Ds[dictNo]
+#    print 'normalize of D' + str(dictNo+1) + ':'
+#    print Ds[dictNo]
 
 algoResults = []
 #Load result of other algo
@@ -99,28 +99,28 @@ testSignal = input_X.read()
 testLoader = aL.arffLoader()
 testLoader.load(testSignal)
 X = testLoader.fortranArray(testLoader.transactionContentList)
-print 'X:'
-print X
+#print 'X:'
+#print X
 #normalize X/各值平方相加開根號
 #X[0][0]為第一筆的第一個欄位值, X[1][0]為第一筆的第二個欄位值, X[A1][A2]為第(A2+1)筆的第(A1+1)個欄位值
 X = np.asfortranarray(X / np.tile(np.sqrt((X*X).sum(axis=0)),(X.shape[0],1)))
-print 'normalize of X:'
-print X
+#print 'normalize of X:'
+#print X
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-7])
-threshold = float(sys.argv[len(sys.argv)-6])
+numAlgoWindow = int(sys.argv[len(sys.argv)-6])
+threshold = float(sys.argv[len(sys.argv)-5])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-5],'w')
+output_f = open(sys.argv[len(sys.argv)-4],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-3],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-2],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+outputCompare = open(sys.argv[len(sys.argv)-1],'w')
 
 #path = "D:\NetDB\LAB\research\ICDM-2014\tmp_result\TestError\test.txt"
-output_Compare = open(sys.argv[len(sys.argv)-1],'w')
+#output_Compare = open(sys.argv[len(sys.argv)-1],'w')
 
 
 
@@ -199,20 +199,19 @@ for j in range(X.shape[1]):
 
 tmpData = []
 dictError = {}
+algoWindow = deque()
 RightInstanceOtherAlgo = 0        
-for i in range(X.shape[1]):
-    if i==638:
-        print 'T'
-    instanceNo = i
+for instNo in range(X.shape[1]):
+    instanceNo = instNo
     errorSum = 0
     for dictNo in range(numOfDicts):
 #        if (dictNo == 1):
 #            print 't'        
         for j in range(X.shape[0]):
             negative = False
-            if(X[j][i]<0):
+            if(X[j][instNo]<0):
                 negative = True
-            tmpData.append(X[j][i])
+            tmpData.append(X[j][instNo])
             tmpWeight = []
             for page in allInfos[dictNo][instanceNo]:
                 pageWeight = allInfos[dictNo][instanceNo][page]
@@ -233,14 +232,29 @@ for i in range(X.shape[1]):
     
     
     dictChoose = min(dictError, key=dictError.get)
-    if int(algoResults[dictChoose].className[i]) == int(testLoader.className[i]):
+    
+    #choose FinalDict
+    if(len(algoWindow)==numAlgoWindow):
+        algoWindow.popleft()
+    algoWindow.append(dictChoose)
+    finalDict = decideFinalDict(algoWindow,threshold)
+    if(finalDict!='currentDict'):
+        finalDictChoose = finalDict
+    
+    output_f.write(str(dictChoose)+',FinalDictChoose:'+str(finalDictChoose)+'\n')
+#    if int(algoResults[dictChoose].className[instNo]) == int(testLoader.className[instNo]):
+#        RightInstanceOtherAlgo += 1
+        
+    if int(algoResults[finalDictChoose].className[instNo]) == int(testLoader.className[instNo]):
         RightInstanceOtherAlgo += 1
     
+    #use result of other algo
+    outputPredictOtherAlgo.write(algoResults[finalDictChoose].transactionList[instNo]+'\n')
     
 #    print dictError        
-    print 'instNo:' + str(i) + ', lower error:' + str(dictChoose)
+#    print 'instNo:' + str(instNo) + ', lower error:' + str(dictChoose)
 #    output_Compare.write(str(dictError)+'\n')
-    output_Compare.write('instNo:' + str(i) + ', lower error:' + str(dictChoose)+'\n')
+#    output_Compare.write('instNo:' + str(instNo) + ', lower error:' + str(dictChoose)+'\n')
     
 print '\nRightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
 print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/len(allInfos[0])) 
