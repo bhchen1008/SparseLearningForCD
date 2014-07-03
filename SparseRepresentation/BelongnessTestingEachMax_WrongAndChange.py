@@ -100,7 +100,7 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
 Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-8) / 2
+numOfDicts = (len(sys.argv)-9) / 2
 
 #Load dictionaries
 input_files = []
@@ -128,18 +128,19 @@ for i in range(numOfDicts):
     algoResults.append(aL.arffLoader())
     algoResults[i].load(result)
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-6])
-threshold = float(sys.argv[len(sys.argv)-5])
+numAlgoWindow = int(sys.argv[len(sys.argv)-7])
+threshold = float(sys.argv[len(sys.argv)-6])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-4],'w')
+output_f = open(sys.argv[len(sys.argv)-5],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-2],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-1],'w')
-
+outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+#Change Threshold
+changeRefStd = float(sys.argv[len(sys.argv)-1])
 
 #args for Lasso
 alpha1Lambda = 1
@@ -328,7 +329,7 @@ for instNo in range(numOfInsts):
         outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
-        if((meanCompare-currentMean) > stdCompare):
+        if((meanCompare-currentMean) > changeRefStd*stdCompare):
             currentDict,meanCompare,stdCompare,wegightWindowDsTmp = reChooseDict(instNo,currentDict,currentMean,stdCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
             weightWindowDs[currentDict] = wegightWindowDsTmp[currentDict]         
 #        else:

@@ -69,7 +69,9 @@ def errorCaculation(test,dictContent,dictInfo,alpha1Lambda):
 def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
     outputCompare.write('Re-Choose Dictionary!\n')
     errorWindowDsRe = []
-    tmpsRe = []
+#    tmpsRe = []
+    tmpsRe = 0
+    splitByEnterDsRe = 0
     numDicts = len(dicts)
     for i in range(numDicts):
         errorWindowDsRe.append(deque())
@@ -90,21 +92,22 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
             
             dictInfosRe.clear()
 #            tmpsRe.append(str(alpha_lasso_m1_Ds_batch.getcol(j)))
-#            tmpsRe = str(alpha_lasso_m1_Ds_batch.getcol(j))
-            tmpsRe.append(str(alpha_lasso_m1_Ds_batch.getcol(j)))
+            tmpsRe = str(alpha_lasso_m1_Ds_batch.getcol(j))
             #instNo+j才是正確的instance Number
-            outputCompare.write(str(instNo+j)+'-D'+str(dictNo)+':'+tmpsRe[j]+'\n\n')
+#            outputCompare.write(str(instNo-len(numAlgoWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe[j]+'\n\n')
+            outputCompare.write(str(instNo-len(numAlgoWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe+'\n\n')
             #split
             #print tmps[i].split('\n')
-#            splitByEnterDs.append(tmpsRe[j].split('\n'))
-#            splitByEnterDs.append(tmpsRe.split('\n'))
-#            splitByEnterDs = tmpsRe.split('\n')
-            splitByEnterDs = tmpsRe[j].split('\n')
+#            splitByEnterDsRe.append(tmpsRe[j].split('\n'))
+#            splitByEnterDsRe.append(tmpsRe.split('\n'))
+#            splitByEnterDsRe = tmpsRe[j].split('\n')
+            splitByEnterDsRe = tmpsRe.split('\n')
+            
             
             #        splitByEnterD1 = tmp1.split('\n')
 #            weightTmp = []
-#            for line in splitByEnterDs[i]:
-            for line in splitByEnterDs:
+#            for line in splitByEnterDsRe[i]:
+            for line in splitByEnterDsRe:
                 line = line.strip()
                 #mapping page
                 pageNo = int(line.split(',')[0].split('(')[1].strip())
@@ -157,18 +160,19 @@ for i in range(numOfDicts):
     algoResults.append(aL.arffLoader())
     algoResults[i].load(result)
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-6])
-threshold = float(sys.argv[len(sys.argv)-5])
+numAlgoWindow = int(sys.argv[len(sys.argv)-7])
+threshold = float(sys.argv[len(sys.argv)-6])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-4],'w')
+output_f = open(sys.argv[len(sys.argv)-5],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-2],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-1],'w')
-
+outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+#Change Threshold
+changeRefStd = float(sys.argv[len(sys.argv)-1])
 
 #args for Lasso
 alpha1Lambda = 1
@@ -348,7 +352,7 @@ for instNo in range(numOfInsts):
         outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
-        if((currentMean - meanCompare) > 34*stdCompare):
+        if((currentMean - meanCompare) > changeRefStd*stdCompare):
 #        if(meanCompare > currentMean):#+0.002):
             currentDict,currentMean,stdCompare = reChooseDict(instNo,currentDict,currentMean,stdCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
 #        else:
