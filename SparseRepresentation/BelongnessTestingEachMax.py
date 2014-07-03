@@ -315,4 +315,5 @@ print 'RightInstance use other algorithm with Sparse Learning:' + str(RightInsta
 print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/numOfInsts)
 
 Alltac = time.time()
+output_f.write('\nAllTime:' + str(Alltac - Alltic))
 print 'AllTime:' + str(Alltac - Alltic)

@@ -352,6 +352,7 @@ print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/len(allInfos[0]))
 #print 'WrongInstanceOtherAlgo:' + str(WrongInstanceOtherAlgo)
 
 Alltac = time.time()
+output_f.write('\nAllTime:' + str(Alltac - Alltic))
 print 'AllTime:' + str(Alltac - Alltic)
 #        weight2Dict[float(str(max_weight_Ds[i])+i)]
 

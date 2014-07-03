@@ -141,8 +141,8 @@ for i in range(numOfDicts):
 #    alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1))
     tac = time.time()
     t = tac - tic
-    print 'alpha_lasoo_m1_D'+str(i)+':'
-    print 'time:'+str(t)
+#    print 'alpha_lasoo_m1_D'+str(i)+':'
+#    print 'time:'+str(t)
 
 #print alpha_lasso_m1_D1.getcol(0)
 #print alpha_lasso_m1_Ds[0].getcol(0)
@@ -258,6 +258,10 @@ for instNo in range(X.shape[1]):
     
 print '\nRightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
 print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/len(allInfos[0])) 
+
+Alltac = time.time()
+output_f.write('\nAllTime:' + str(Alltac - Alltic))
+print 'AllTime:' + str(Alltac - Alltic)
 
 '''    
 #customize
