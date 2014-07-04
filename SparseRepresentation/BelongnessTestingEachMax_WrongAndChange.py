@@ -33,7 +33,7 @@ def decideFinalDict(dictWindow,threshold):
         else:
             return 'currentDict'
         
-def reChooseDict(instNo,currDict,currMean,weightWindowDsCurDict,currStd,currMeanCompare,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
+def reChooseDict(instNo,currDict,currMean,weightWindowDsCurDict,currStdCompare,currMeanCompare,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
     outputCompare.write('Re-Choose Dictionary!\n')
     outputPredictSparse.write('Re-Choose Dictionary!\n')
     
@@ -53,7 +53,8 @@ def reChooseDict(instNo,currDict,currMean,weightWindowDsCurDict,currStd,currMean
 #        tmpsRe[:] = []
 #        splitByEnterDsRe[:] = []
         if(dictNo==currDict):
-            continue
+            weightWindowDsRe[dictNo] = weightWindowDsCurDict
+#            continue
         alpha_lasso_m1_Ds_batch = spams.lasso(testD,dicts[dictNo],return_reg_path = False,lambda1 = 1,pos=True,mode=0)
         
         for j in range(alpha_lasso_m1_Ds_batch.shape[1]):
@@ -83,34 +84,44 @@ def reChooseDict(instNo,currDict,currMean,weightWindowDsCurDict,currStd,currMean
             #one page bug if weight = 0.0 transform to 1
             if maxWeight==0:
                 maxWeight = 1
+            if maxWeight > 1:
+                maxWeight = 1
             weightWindowDsRe[dictNo].append(maxWeight)
             
     #choose dict
     for dictNo in range(numOfDicts):
+        #若是目前的Dict則直接給值
         if(dictNo==currDict):
             dictWeightMeanRe[dictNo] = currMean
+        #若不是則要重新計算一次
         else:
             dictWeightMeanRe[dictNo] = np.mean(weightWindowDsRe[dictNo])
+    #找出值最大的Dict，以及平均值
     maxWeightDict,meanCompareRe = max(dictWeightMeanRe.iteritems(), key=lambda x:x[1])
     if(maxWeightDict==currDict):
         #更新currMean
-        meanCompareRe = currMean
-        #保留舊的currMean
-#        meanCompareRe = currMeanCompare
-        stdCompareRe = np.std(weightWindowDsCurDict)
-        outputCompare.write('Keep same model'+str(maxWeightDict)+',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
-        outputPredictSparse.write('Keep same model'+str(maxWeightDict)+',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
+#        meanCompareRe = currMean
+        #保留舊的currMeanCompare
+        meanCompareRe = currMeanCompare
+        #更新stdCompare
+        
+        #保留舊的stdCompare
+        stdCompareRe = currStdCompare
+#        weightWindowDsRe[maxWeightDict] = weightWindowDsCurDict
+        outputCompare.write('Keep same model'+str(maxWeightDict)+'!\n')
+        outputPredictSparse.write('Keep same model'+str(maxWeightDict)+'!\n')
     else:
+#        changeModelRe = 1
         stdCompareRe = np.std(weightWindowDsRe[maxWeightDict])
-        outputCompare.write('Change model to model-' + str(maxWeightDict) +',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
-        outputPredictSparse.write('Change model to model-' + str(maxWeightDict) +',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
+        outputCompare.write('Change model to model-' + str(maxWeightDict) +',meanCompare:'+str(meanCompareRe)+',stdCompare:'+str(stdCompareRe)+'!\n')
+        outputPredictSparse.write('Change model to model-' + str(maxWeightDict) +',meanCompare:'+str(meanCompareRe)+',stdCompare:'+str(stdCompareRe)+'!\n')
     
-    return (maxWeightDict,meanCompareRe,stdCompareRe,weightWindowDsRe)
+    return (maxWeightDict,meanCompareRe,stdCompareRe,weightWindowDsRe[maxWeightDict])
     
 Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-9) / 2
+numOfDicts = (len(sys.argv)-10) / 2
 
 #Load dictionaries
 input_files = []
@@ -138,17 +149,18 @@ for i in range(numOfDicts):
     algoResults.append(aL.arffLoader())
     algoResults[i].load(result)
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-7])
-threshold = float(sys.argv[len(sys.argv)-6])
+numAlgoWindow = int(sys.argv[len(sys.argv)-8])
+threshold = float(sys.argv[len(sys.argv)-7])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-5],'w')
+output_f = open(sys.argv[len(sys.argv)-6],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-5],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-4],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+outputCompare = open(sys.argv[len(sys.argv)-3],'w')
+outputExecutionTime = open(sys.argv[len(sys.argv)-2],'w')
 #Change Threshold
 changeRefStd = float(sys.argv[len(sys.argv)-1])
 
@@ -204,8 +216,10 @@ stdCompare = 0
 
 numOfInsts = testLoader.numInstance
 numOfAttrs = testLoader.numAttribute
+instExecTime = 0
 for instNo in range(numOfInsts):
 #    print 'instNo:'+str(instNo)
+    instExecTime = time.time()
     currentTestData = testLoader.transactionContentList[instNo]
     X = testLoader.singleFortranArray(currentTestData)
 #    print 'X:'
@@ -277,9 +291,10 @@ for instNo in range(numOfInsts):
                 maxWeight = 1
             elif maxWeight > 1:
                 maxWeight = 1
-            if(len(weightWindowDs)==numAlgoWindow):
-                weightWindowDs.popleft()            
+#            if(len(weightWindowDs)==numAlgoWindow):
+#                weightWindowDs.popleft()            
             weightWindowDs[dictNo].append(maxWeight)
+            
 #        print 'instNo:'+str(instNo)
         #當sliding window的資料已滿，即可開始選擇初始字典            
         if(instNo==(numAlgoWindow-1)):
@@ -326,7 +341,7 @@ for instNo in range(numOfInsts):
         #取完weightTmp後，清空
         weightTmp[:] = []
             
-        #one pji3veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeewwwwwwwwwwwwwwwwwwwwwww````````````sssssssddddddddddddddddddddddddddddfage bug if weight = 0.0 transform to 1
+        #one page bug if weight = 0.0 transform to 1
         if maxWeight==0:
             maxWeight = 1
         elif maxWeight > 1:
@@ -339,9 +354,12 @@ for instNo in range(numOfInsts):
         outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
-        if((meanCompare-currentMean) > changeRefStd*stdCompare):
-            currentDict,meanCompare,stdCompare,wegightWindowDsTmp = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
-            weightWindowDs[currentDict] = wegightWindowDsTmp[currentDict]         
+        changeThreshold = meanCompare-(changeRefStd*stdCompare)
+        if(currentMean < changeThreshold ):
+            currentDict,meanCompare,stdCompare,wegightWindowDsTmp,changeModel = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
+            weightWindowDs[currentDict] = wegightWindowDsTmp
+#            if(changeModel==1):
+                         
 #        else:
 #            print 'currentMean'+str(currentMean)
             
@@ -361,8 +379,10 @@ for instNo in range(numOfInsts):
     
     for i in range(len(dictInfos)):
         dictInfos[i].clear()
-    weight2Dict.clear()
-    dictChooseUBE.clear()
+    
+    instExecTime = time.time() - instExecTime
+    outputExecutionTime.write(str(instExecTime))
+    
             
 print 'RightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
 print 'Accuracy:'+str(float(RightInstanceOtherAlgo)/(numOfInsts-numAlgoWindow))
