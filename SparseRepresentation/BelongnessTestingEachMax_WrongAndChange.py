@@ -92,8 +92,10 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
     maxWeightDict,meanCompareRe = max(dictWeightMeanRe.iteritems(), key=lambda x:x[1])
     if(maxWeightDict==currDict):
         stdCompareRe = currStd
+        outputCompare.write('Keep same model!\n')
     else:
         stdCompareRe = np.std(weightWindowDsRe[maxWeightDict])
+        outputCompare.write('Change model to model-' + maxWeightDict + '\n')
     
     return (maxWeightDict,meanCompareRe,stdCompareRe,weightWindowDsRe)
     
