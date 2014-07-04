@@ -93,6 +93,7 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
             dictWeightMeanRe[dictNo] = np.mean(weightWindowDsRe[dictNo])
     maxWeightDict,meanCompareRe = max(dictWeightMeanRe.iteritems(), key=lambda x:x[1])
     if(maxWeightDict==currDict):
+        meanCompareRe = currMean
         stdCompareRe = currStd
         outputCompare.write('Keep same model'+maxWeightDict+'!\n')
         outputPredictSparse.write('Keep same model'+maxWeightDict+'!\n')
