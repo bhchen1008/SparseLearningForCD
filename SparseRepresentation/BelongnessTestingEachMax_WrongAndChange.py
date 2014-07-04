@@ -94,8 +94,8 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
     maxWeightDict,meanCompareRe = max(dictWeightMeanRe.iteritems(), key=lambda x:x[1])
     if(maxWeightDict==currDict):
         stdCompareRe = currStd
-        outputCompare.write('Keep same model!\n')
-        outputPredictSparse.write('Keep same model!\n')
+        outputCompare.write('Keep same model'+maxWeightDict+'!\n')
+        outputPredictSparse.write('Keep same model'+maxWeightDict+'!\n')
     else:
         stdCompareRe = np.std(weightWindowDsRe[maxWeightDict])
         outputCompare.write('Change model to model-' + str(maxWeightDict) + '\n')
@@ -222,8 +222,6 @@ for instNo in range(numOfInsts):
     #Initial in slidingWindow decide the initial Dictionary
     #Caculate
     if(instNo < numAlgoWindow):
-        if(instNo==2):
-            print '1'
         for dictNo in range(numOfDicts):
     #        alpha_lasso_m1_Ds = spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
     #        alpha_lasso_m1_Ds = spams.lasso(X,Ds[dictNo],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1)
