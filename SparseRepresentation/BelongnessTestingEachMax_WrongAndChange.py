@@ -35,6 +35,8 @@ def decideFinalDict(dictWindow,threshold):
         
 def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
     outputCompare.write('Re-Choose Dictionary!\n')
+    outputPredictSparse.write('Re-Choose Dictionary!\n')
+    
     weightWindowDsRe = []
 #    tmpsRe = []
     tmpsRe = 0
@@ -93,9 +95,11 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
     if(maxWeightDict==currDict):
         stdCompareRe = currStd
         outputCompare.write('Keep same model!\n')
+        outputPredictSparse.write('Keep same model!\n')
     else:
         stdCompareRe = np.std(weightWindowDsRe[maxWeightDict])
-        outputCompare.write('Change model to model-' + maxWeightDict + '\n')
+        outputCompare.write('Change model to model-' + str(maxWeightDict) + '\n')
+        outputPredictSparse.write('Change model to model-' + str(maxWeightDict) + '\n')
     
     return (maxWeightDict,meanCompareRe,stdCompareRe,weightWindowDsRe)
     
