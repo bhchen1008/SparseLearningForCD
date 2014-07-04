@@ -33,7 +33,7 @@ def decideFinalDict(dictWindow,threshold):
         else:
             return 'currentDict'
         
-def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
+def reChooseDict(instNo,currDict,currMean,weightWindowDsCurDict,currStd,currMeanCompare,dicts,testDWindow,numAttrs,numInsts,outputCompare,Lambda):
     outputCompare.write('Re-Choose Dictionary!\n')
     outputPredictSparse.write('Re-Choose Dictionary!\n')
     
@@ -93,14 +93,17 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
             dictWeightMeanRe[dictNo] = np.mean(weightWindowDsRe[dictNo])
     maxWeightDict,meanCompareRe = max(dictWeightMeanRe.iteritems(), key=lambda x:x[1])
     if(maxWeightDict==currDict):
+        #更新currMean
         meanCompareRe = currMean
-        stdCompareRe = currStd
-        outputCompare.write('Keep same model'+maxWeightDict+'!\n')
-        outputPredictSparse.write('Keep same model'+maxWeightDict+'!\n')
+        #保留舊的currMean
+#        meanCompareRe = currMeanCompare
+        stdCompareRe = np.std(weightWindowDsCurDict)
+        outputCompare.write('Keep same model'+str(maxWeightDict)+',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
+        outputPredictSparse.write('Keep same model'+str(maxWeightDict)+',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
     else:
         stdCompareRe = np.std(weightWindowDsRe[maxWeightDict])
-        outputCompare.write('Change model to model-' + str(maxWeightDict) + '\n')
-        outputPredictSparse.write('Change model to model-' + str(maxWeightDict) + '\n')
+        outputCompare.write('Change model to model-' + str(maxWeightDict) +',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
+        outputPredictSparse.write('Change model to model-' + str(maxWeightDict) +',currentMean:'+str(meanCompareRe)+',currentStd:'+str(stdCompareRe)+'!\n')
     
     return (maxWeightDict,meanCompareRe,stdCompareRe,weightWindowDsRe)
     
@@ -332,12 +335,12 @@ for instNo in range(numOfInsts):
             weightWindowDs[currentDict].popleft()            
         weightWindowDs[currentDict].append(maxWeight)
         
-        currentMean = np.mean(weightWindowDs[currentDict])
+        currentMean = np.mean(weightWindowDs[currentDict])        
         outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
         if((meanCompare-currentMean) > changeRefStd*stdCompare):
-            currentDict,meanCompare,stdCompare,wegightWindowDsTmp = reChooseDict(instNo,currentDict,currentMean,stdCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
+            currentDict,meanCompare,stdCompare,wegightWindowDsTmp = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
             weightWindowDs[currentDict] = wegightWindowDsTmp[currentDict]         
 #        else:
 #            print 'currentMean'+str(currentMean)
