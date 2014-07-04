@@ -95,7 +95,7 @@ def reChooseDict(instNo,currDict,currMean,currStd,dicts,testDWindow,numAttrs,num
             tmpsRe = str(alpha_lasso_m1_Ds_batch.getcol(j))
             #instNo+j才是正確的instance Number
 #            outputCompare.write(str(instNo-len(numAlgoWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe[j]+'\n\n')
-            outputCompare.write(str(instNo-len(numAlgoWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe+'\n\n')
+            outputCompare.write(str(instNo-len(testDWindow)+j)+'-D'+str(dictNo)+':'+tmpsRe+'\n\n')
             #split
             #print tmps[i].split('\n')
 #            splitByEnterDsRe.append(tmpsRe[j].split('\n'))
