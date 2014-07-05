@@ -36,7 +36,7 @@ def decideFinalDict(dictWindow,threshold):
 Alltic = time.time()
 #numOfDicts = len(sys.argv)-5
 #algowindow
-numOfDicts = (len(sys.argv)-8) / 2
+numOfDicts = (len(sys.argv)-9) / 2
 
 #Load dictionaries
 input_files = []
@@ -63,17 +63,18 @@ for i in range(numOfDicts):
     algoResults.append(aL.arffLoader())
     algoResults[i].load(result)
 
-numAlgoWindow = int(sys.argv[len(sys.argv)-6])
-threshold = float(sys.argv[len(sys.argv)-5])
+numAlgoWindow = int(sys.argv[len(sys.argv)-7])
+threshold = float(sys.argv[len(sys.argv)-6])
 
 #DictionaryChoose
-output_f = open(sys.argv[len(sys.argv)-4],'w')
+output_f = open(sys.argv[len(sys.argv)-5],'w')
 #PredictReference output(Sparse Learning)
-outputPredictSparse = open(sys.argv[len(sys.argv)-3],'w')
+outputPredictSparse = open(sys.argv[len(sys.argv)-4],'w')
 #result of other algorithm with Sparse Learning
-outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-2],'w')
+outputPredictOtherAlgo = open(sys.argv[len(sys.argv)-3],'w')
 #Compare Output
-outputCompare = open(sys.argv[len(sys.argv)-1],'w')
+outputCompare = open(sys.argv[len(sys.argv)-2],'w')
+outputExecutionTime = open(sys.argv[len(sys.argv)-1],'w')
 
 
 #args for Lasso
@@ -116,8 +117,10 @@ currentDict = 0
 #numOfInsts = len(testLoader.transactionContentList)
 numOfInsts = testLoader.numInstance
 numOfAttrs = testLoader.numAttribute
+instExecTime = 0
 for instNo in range(numOfInsts):
 #    print 'instNo:'+str(instNo)
+    instExecTime = time.time()
     currentTestData = testLoader.transactionContentList[instNo]
     X = testLoader.singleFortranArray(currentTestData)
 #    print 'X:'
@@ -307,6 +310,10 @@ for instNo in range(numOfInsts):
         dictInfos[i].clear()
     weight2Dict.clear()
     dictChooseUBE.clear()
+    
+    instExecTime = time.time() - instExecTime
+    outputExecutionTime.write(str(instExecTime))
+    
 
 print 'RightInstance use Sparse Learning:' + str(RightInstance)
 print 'Accuracy:'+str(float(RightInstance)/numOfInsts)
