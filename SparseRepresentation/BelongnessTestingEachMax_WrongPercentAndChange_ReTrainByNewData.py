@@ -375,8 +375,7 @@ for instNo in range(numOfInsts):
         outputPredictSparse.write('instNo:'+str(instNo)+',currentMean:'+str(currentMean)+'\n')
         #目前的mean小於於之前選dict時的2個標準差，啟動重新選擇字典
 #        if((meanCompare-currentMean) > 2*stdCompare):
-#        changeThreshold = meanCompare-(changeRefStd*stdCompare)
-        changeThreshold = meanCompare-(changeRefStd*meanCompare)
+        changeThreshold = meanCompare-(changeRefStd*stdCompare)
         if(currentMean < changeThreshold ):
             #currentDict,meanCompare,stdCompare,wegightWindowDsTmp,changeModel = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
             outputPredictSparse.write("<changeThreshold\n")
