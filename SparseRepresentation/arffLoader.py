@@ -9,6 +9,7 @@ class arffLoader:
     def __init__(self):
         self.classIndex = 0     #index of class
         self.attrName = []      #index map to AttrName
+        self.arffAttribute = ""
         self.transactionList = []  #transactionList
         self.transactionContentList = []   #transaction list
         self.className = []
@@ -32,6 +33,7 @@ class arffLoader:
         #    Save the value in transaction to transaction list
         #    Save transaction list into transactionList list
         #
+        self.arffAttribute = content.split('@data')[0].strip()
         transContent = content.split('@data')[1].strip()
         transaction = transContent.split('\n')
 #        transactionContentList = self.transactionContentList

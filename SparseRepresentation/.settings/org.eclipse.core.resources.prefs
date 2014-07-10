@@ -1,4 +1,4 @@
-#Wed Jul 02 19:53:08 CST 2014
+#Fri Jul 11 00:34:42 CST 2014
 eclipse.preferences.version=1
 encoding/BelongnessTestAdvanced.py=utf-8
 encoding/BelongnessTestAdvancedUseOtherAlgo.py=utf-8
@@ -8,6 +8,8 @@ encoding/BelongnessTestingEachError.py=utf-8
 encoding/BelongnessTestingEachError_WrongAndChange.py=utf-8
 encoding/BelongnessTestingEachMax.py=utf-8
 encoding/BelongnessTestingEachMax_WrongAndChange.py=utf-8
+encoding/BelongnessTestingEachMax_WrongAndChange_ReTrain.py=utf-8
+encoding/BelongnessTestingEachMax_WrongAndChange_ReTrainByNewData.py=utf-8
 encoding/arffLoader.py=utf-8
 encoding/testEach2All.py=utf-8
 encoding/testProximal.py=utf-8

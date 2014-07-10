@@ -130,6 +130,8 @@ alpha_lasso_m1_Ds = []
 #a = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
 for i in range(numOfDicts):
     tic = time.time()
+    if i==17:
+        print 'test'
     alpha_lasso_m1_Ds.append(spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0))
 #    alpha_lasso_D = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = alpha1Lambda,pos=True,mode=0)
 #    alpha_lasso_D = spams.lasso(X,Ds[i],return_reg_path = False,lambda1 = compareLambda,pos=True,mode=1)
