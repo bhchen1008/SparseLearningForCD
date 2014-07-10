@@ -356,7 +356,7 @@ for instNo in range(numOfInsts):
 #        if((meanCompare-currentMean) > 2*stdCompare):
         changeThreshold = meanCompare-(changeRefStd*stdCompare)
         if(currentMean < changeThreshold ):
-            currentDict,meanCompare,stdCompare,wegightWindowDsTmp,changeModel = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
+            currentDict,meanCompare,stdCompare,wegightWindowDsTmp = reChooseDict(instNo,currentDict,currentMean,weightWindowDs[currentDict],stdCompare,meanCompare,Ds,testDataWindow,numOfAttrs,numAlgoWindow,outputCompare,alpha1Lambda)
             weightWindowDs[currentDict] = wegightWindowDsTmp
 #            if(changeModel==1):
                          
@@ -381,7 +381,7 @@ for instNo in range(numOfInsts):
         dictInfos[i].clear()
     
     instExecTime = time.time() - instExecTime
-    outputExecutionTime.write(str(instExecTime))
+    outputExecutionTime.write(str(instExecTime)+'\n')
     
             
 print 'RightInstance use other algorithm with Sparse Learning:' + str(RightInstanceOtherAlgo)
